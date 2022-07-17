@@ -18,10 +18,11 @@ class CartDatabaseHelper extends ChangeNotifier {
   final String categoryId = "categoryId";
   final String name = "name";
   final String image = "image";
+  final String uploadedImage = "uploadedImage";
   final String price = "price";
   final String quantity = "quantity";
   final String deliveryTime = "deliveryTime";
-  final String deliveryNote = "deliveryNote";
+  final String deliveryNote = "deliveryNote"; 
 
   Future<Database> get db async {
     Database _db;
@@ -39,7 +40,7 @@ class CartDatabaseHelper extends ChangeNotifier {
 
   void _onCreate(Database db, int newVersion) async {
     await db.execute(
-        "CREATE TABLE $table($id INTEGER PRIMARY KEY AUTOINCREMENT, $itemId INTEGER, $categoryId INTEGER, $name TEXT, $image TEXT , $price TEXT, $deliveryTime TEXT, $deliveryNote TEXT, $quantity INTEGER)");
+        "CREATE TABLE $table($id INTEGER PRIMARY KEY AUTOINCREMENT, $itemId INTEGER, $categoryId INTEGER, $name TEXT, $image TEXT ,$uploadedImage TEXT , $price TEXT, $deliveryTime TEXT, $deliveryNote TEXT, $quantity INTEGER)");
   }
 
   /*================== CRUD ===================*/
@@ -52,23 +53,25 @@ class CartDatabaseHelper extends ChangeNotifier {
     if (result.isEmpty) {
       saveItem(cartData: cartData);
     } else {
-      int id = result[0]['id'] as int;
+      int itemId = result[0]['id'] as int;
       int quantity = result[0]['quantity'] as int;
-      cartData['quantity'] += quantity;
-      updateQuantity(cartData: cartData, id: id);
+      int cartQuantity = int.parse(cartData['quantity']);
+      cartQuantity += quantity;
+      cartData['quantity'] = cartQuantity;
+      updateQuantity(cartData: cartData, itemId: itemId);
     }
   }
 
   // INSERTIONG
   Future<int> saveItem({required Map<String, dynamic> cartData}) async {
     var dbClient = await db;
-    try{
+    try {
       int item = await dbClient.insert(table, cartData);
       notifyListeners();
       return item;
-    }catch(e){
+    } catch (e) {
       print("problem Insert item === ${e}");
-      throw(e);
+      throw (e);
     }
   }
 
@@ -83,6 +86,7 @@ class CartDatabaseHelper extends ChangeNotifier {
         "$categoryId",
         "$name",
         "$image",
+        "$uploadedImage",
         "$price",
         "$quantity",
         "$deliveryTime",
@@ -148,12 +152,11 @@ class CartDatabaseHelper extends ChangeNotifier {
 
   // UPDATING
   Future<int> updateQuantity(
-      {required Map<String, dynamic> cartData, required int id}) async {
+      {required Map<String, dynamic> cartData, required int itemId}) async {
     var dbClient = await db;
-    print(cartData['quantity']);
     try {
       int updateItem = await dbClient
-          .update(table, cartData, where: '$id = ?', whereArgs: [id]);
+          .update(table, cartData, where: '$id = ?', whereArgs: [itemId]);
       notifyListeners();
       return updateItem;
     } catch (e) {

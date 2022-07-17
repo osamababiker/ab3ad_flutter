@@ -10,10 +10,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'route.dart';
 import 'theme.dart';
 
-
-// flutter build appbundle
  
-Future main() async{
+// flutter build appbundle
+  
+Future main() async{ 
 
   WidgetsFlutterBinding.ensureInitialized(); 
   await Firebase.initializeApp(); 
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
  
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return FutureBuilder(
       future: fetchCategories(),
       builder: (context, AsyncSnapshot snapshot) {

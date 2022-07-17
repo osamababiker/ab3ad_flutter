@@ -19,7 +19,7 @@ class OrderFormScreen extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(" اضافة الطلب للسلة",
+          title: const Text(" اضافة الطلب للسلة", 
               style: TextStyle(
                   fontSize: 16,
                   color: kTextColor,

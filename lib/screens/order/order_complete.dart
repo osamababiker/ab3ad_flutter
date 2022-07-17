@@ -11,20 +11,10 @@ class OrderCompleteScreen extends StatelessWidget {
   const OrderCompleteScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Directionality(
+    return const Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text(
-            "أبعاد",
-            style: TextStyle(
-              color: kTextColor,
-              fontSize: 16
-            ),
-          ),
-        ),
-        body: const Body(),
+        body: Body(),
       ),
     );
   }

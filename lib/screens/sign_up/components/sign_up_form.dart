@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:ab3ad/controllers/authController.dart';
 import 'package:ab3ad/screens/components/custom_suffix_icon.dart';
+import 'package:ab3ad/screens/sign_in/sign_in_screen.dart';
 import 'package:ab3ad/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:ab3ad/screens/components/custom_surfix_icon.dart';
@@ -112,8 +113,10 @@ class _SignUpFormState extends State<SignUpForm> {
           buildPasswordFormField(),
           SizedBox(height: getScreenSize(context) * 2.0),
           buildConformPassFormField(),
+          SizedBox(height: getScreenSize(context) * 2.0),
           FormError(errors: errors),
           SizedBox(height: getScreenSize(context) * 2.0),
+          !isPressed ?
           DefaultButton(
             text: "انشاء حساب",
             press: () async{
@@ -124,9 +127,9 @@ class _SignUpFormState extends State<SignUpForm> {
                 'password_confirmation': _confirmPasswordController.text,
                 'address': _addressController.text,
                 'phone': _phoneController.text,
-                'lat': location.latitude,
+                'lat': location.latitude, 
                 'lng': location.longitude,
-                'device_name': _deviceName,
+                'device_name': _deviceName, 
                 'notificationToken': _notificationToken
               };
               if(_formKey.currentState!.validate()){
@@ -136,9 +139,21 @@ class _SignUpFormState extends State<SignUpForm> {
                 });
                 var provider = Provider.of<Auth>(context, listen: false);
                 var apiResult = await provider.register(fields: fields);
+                if(apiResult['data'] != ''){ 
+                  Navigator.pushReplacementNamed(
+                    context, SignInScreen.routeName,
+                  );
+                } else {
+                  addError(error: "${apiResult['message']}");
+                  setState(() {
+                    isPressed = false;
+                  });
+                } 
               }
             },
-          ),
+          )
+          :
+          const Center(child: CircularProgressIndicator())
         ],
       ),
     );
@@ -148,6 +163,7 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildNameFormField() {
     return TextFormField(
       keyboardType: TextInputType.name,
+      controller: _nameController,
       onChanged: (value){ 
         if(value.isNotEmpty){
           removeError(error: kNamelNullError);
@@ -173,6 +189,7 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildAddressFormField() {
     return TextFormField(
       keyboardType: TextInputType.streetAddress,
+      controller: _addressController,
       onChanged: (value){
         if(value.isNotEmpty){
           removeError(error: kAddressNullError);
@@ -198,6 +215,7 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildPhoneFormField() {
     return TextFormField(
       keyboardType: TextInputType.phone,
+      controller: _phoneController,
       onChanged: (value){
         if(value.isNotEmpty){
           removeError(error: kPhoneNumberNullError);
@@ -224,6 +242,7 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
       obscureText: true,
       onSaved: (newValue) => conformPassword = newValue!,
+      controller: _confirmPasswordController,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
@@ -255,6 +274,7 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
       obscureText: true,
       onSaved: (newValue) => password = newValue!,
+      controller: _passwordController,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);

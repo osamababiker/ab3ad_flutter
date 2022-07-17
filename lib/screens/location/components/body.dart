@@ -1,41 +1,38 @@
 import 'dart:convert';
-
 import 'package:ab3ad/controllers/ordersController.dart';
+import 'package:ab3ad/screens/components/default_button.dart';
 import 'package:ab3ad/screens/order/order_complete.dart';
 import 'package:ab3ad/screens/sign_in/sign_in_screen.dart';
 import 'package:ab3ad/utils/cart_db_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocode/geocode.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ab3ad/controllers/authController.dart';
+import 'package:dio/dio.dart';
+import 'package:path/path.dart';
 import '../../../constants.dart';
 
 class Body extends StatefulWidget {
-  final Position currentLocation;
-  const Body({Key? key, required this.currentLocation}) : super(key: key);
+  const Body({Key? key}) : super(key: key);
   @override
   _BodyState createState() => _BodyState();
 }
 
 class _BodyState extends State<Body> {
-  late GoogleMapController mapController;
-  Map<MarkerId, Marker> markers = {};
   late double _currentLat = 0.0;
   late double _currentLng = 0.0;
+  late MapController mapController;
+  bool isPressed = false;
 
   @override
   void initState() {
     super.initState();
-    _setMarkers();
-  }
-
-  _setMarkers() async {
-    /// origin marker
-    var location = await _getCurrentPosition();
-    _addMarker(LatLng(location.latitude, location.longitude), "موقعك",
-        BitmapDescriptor.defaultMarker);
+    _getCurrentPosition();
+    mapController = MapController();
   }
 
   Future<Position> _getCurrentPosition() async {
@@ -49,17 +46,6 @@ class _BodyState extends State<Body> {
     return _currentPosition;
   }
 
-  void _onMapCreated(GoogleMapController controller) async {
-    mapController = controller;
-  }
-
-  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
-    MarkerId markerId = MarkerId(id);
-    Marker marker =
-        Marker(markerId: markerId, icon: descriptor, position: position);
-    markers[markerId] = marker;
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -71,14 +57,29 @@ class _BodyState extends State<Body> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                  target: LatLng(_currentLat, _currentLng), zoom: 15),
-              myLocationButtonEnabled: true,
-              zoomControlsEnabled: true,
-              onMapCreated: _onMapCreated,
-              mapToolbarEnabled: true,
-              markers: Set<Marker>.of(markers.values),
+            FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                center: LatLng(_currentLat, _currentLng),
+                zoom: 13.0,
+              ),
+              layers: [
+                TileLayerOptions(
+                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c']
+                ),
+                MarkerLayerOptions(
+                  markers: [
+                    Marker(
+                      width: 80.0,
+                      height: 80.0,
+                      point: LatLng(_currentLat, _currentLng),
+                      builder: (ctx) =>
+                      const Icon(Icons.location_on, size: 48, color: Colors.red),
+                    ),
+                  ],
+                ),
+              ],
             ),
             Positioned(
               bottom: 0,
@@ -96,68 +97,88 @@ class _BodyState extends State<Body> {
                       children: [
                         TextField(
                             keyboardType: TextInputType.text,
-                            onChanged: (value) async {
+                            onSubmitted: (value) async {
                               GeoCode geoCode = GeoCode();
                               try {
                                 Coordinates coordinates = await geoCode
                                     .forwardGeocoding(address: value);
-                                setState(() {
-                                  _currentLat = coordinates.latitude!;
-                                  _currentLng = coordinates.longitude!;
-                                });
+                              mapController.move(LatLng(coordinates.latitude!, coordinates.longitude!), 13.0);
+                              setState(() {
+                                _currentLat = coordinates.latitude!;
+                                _currentLng = coordinates.longitude!;
+                              });
                               } catch (e) {
                                 print(e);
                               }
                             },
                             decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
                               hintText: "ابحث عن موقع معين",
                               hintStyle:
                                   TextStyle(color: kTextColor, fontSize: 14),
                               contentPadding: EdgeInsets.all(kDefaultPadding),
                             )),
                         const SizedBox(height: 5),
-                        TextButton(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.all(kDefaultPadding / 2),
-                              decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.9),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: const Text("ارسل الطلب",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 14)),
-                            ),
-                            onPressed: () async {
+                        isPressed ? const Center(child: CircularProgressIndicator()) :
+                        DefaultButton(
+                            text: "ارسل الطلب",
+                            press: () async {
+
+                              setState(() {isPressed = true;});
+                              
                               var authProvider =
-                                  Provider.of<Auth>(context, listen: false); 
+                                  Provider.of<Auth>(context, listen: false);
                               var cartProvider =
                                   Provider.of<CartDatabaseHelper>(context,
                                       listen: false);
                               List cart = await cartProvider.getItems();
-                              if (authProvider.authenticated) {
-                                var user = authProvider.user;
-                                List cartList = [];
-                                for (var i = 0; i < cart.length; i++) {
-                                  var cartMap = cart[i].toMap();
-                                  cartList.add(cartMap);
+
+                              if(cart.isEmpty){
+                                setState(() {
+                                  isPressed = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg: "الرجاء اضافة عناصر لسلة التسوق اولا",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: kPrimaryColor,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              }else {
+                                if (authProvider.authenticated) {
+                                  var user = authProvider.user;
+                                  var cartDb = CartDatabaseHelper();
+                                  var _itemFile;
+                                  for (var i = 0; i < cart.length; i++) {
+                                    var cartMap = cart[i].toMap();
+                                    if(cartMap['uploadedImage'] != null){
+                                      _itemFile = await MultipartFile.fromFile(
+                                        cartMap['uploadedImage'],
+                                        filename:
+                                            basename(cartMap['uploadedImage']),
+                                      );
+                                    }
+
+                                    var formData = FormData.fromMap({
+                                      'userId': user.id,
+                                      'cart': jsonEncode(cartMap),
+                                      "lat": _currentLat,
+                                      "lng": _currentLng,
+                                      "file": _itemFile,
+                                      'status': 0
+                                    });
+
+                                    await checkout(formData: formData);
+                                    await cartDb.deleteItem(cart[i].id);
+                                  }
+                                  Navigator.pushReplacementNamed(
+                                  context, OrderCompleteScreen.routeName);
+                                } else {
+                                  Navigator.pushNamed(
+                                      context, SignInScreen.routeName);
                                 }
-                                Map data = {
-                                  'userId': user.id,
-                                  'cart': jsonEncode(cartList),
-                                  "lat": _currentLat,
-                                  "lng": _currentLng,
-                                  'status': 0
-                                };
-                                await checkout(data: data);
-                                var db = CartDatabaseHelper();
-                                for (var i = 0; i < cart.length; i++) {
-                                  await db.deleteItem(cart[i].id);
-                                }
-                                Navigator.pushReplacementNamed(
-                                context, OrderCompleteScreen.routeName);
-                              } else {
-                                Navigator.pushNamed(
-                                    context, SignInScreen.routeName);
                               }
                             })
                       ]),

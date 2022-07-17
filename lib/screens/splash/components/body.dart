@@ -15,7 +15,8 @@ class _BodyState extends State<Body> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SizedBox(
+      child: Container(
+        color: Colors.white,
         width: double.infinity,
         child: Column(
           children: <Widget>[
@@ -25,7 +26,7 @@ class _BodyState extends State<Body> {
                 children: <Widget>[
                   const Spacer(),
                   Image.asset(
-                    "assets/images/logos_black.png",
+                    "assets/images/logo.jpg",
                     height: getScreenSize(context) * 26.5,
                     width: getScreenSize(context) * 23.5,
                   ),
@@ -42,7 +43,8 @@ class _BodyState extends State<Body> {
                     "خدمة توصيل غاز من الباب الى الباب",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 18
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],

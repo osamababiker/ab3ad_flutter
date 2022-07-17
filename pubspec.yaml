@@ -35,29 +35,28 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-dev_dependencies:
+dev_dependencies: 
   flutter_svg: ^1.0.0
   image_picker: ^0.7.4
+  cached_network_image: ^3.2.0
   path_provider: ^2.0.8
   sqflite: ^2.0.1
   provider: ^6.0.2
-  google_maps_flutter: ^2.1.1
-  google_directions_api: ^0.9.0
-  flutter_polyline_points: ^1.0.0
+  flutter_map: ^0.14.0
+  latlng: ^0.1.0
   geolocator: ^8.0.1
-  geocode: ^1.0.1
+  geocode: ^1.0.1 
   dio: ^4.0.4
-  fluttertoast: ^8.0.8
+  fluttertoast: ^8.0.8 
   dropdown_button2: ^1.1.1
   permission_handler: ^8.3.0
   flutter_secure_storage: ^5.0.2
   device_info: ^2.0.3
-  easy_localization: ^3.0.0
-  awesome_dialog: ^2.1.2
   firebase_messaging: ^11.2.4
   firebase_core: ^1.10.6
   flutter_local_notifications: ^9.2.0
   intl: ^0.17.0
+  flutter_rating_bar: ^4.0.0
   flutter_test:
     sdk: flutter
 

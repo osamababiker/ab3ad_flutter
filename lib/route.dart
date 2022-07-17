@@ -1,5 +1,8 @@
+import 'package:ab3ad/screens/evaluation/evaluation_screen.dart';
 import 'package:ab3ad/screens/cart/cart_screen.dart';
 import 'package:ab3ad/screens/delivery/delivery_screen.dart';
+import 'package:ab3ad/screens/delivery/take_order_screen.dart';
+import 'package:ab3ad/screens/delivery_requests/delivery_requests_screen.dart';
 import 'package:ab3ad/screens/location/location_screen.dart';
 import 'package:ab3ad/screens/order/form.dart';
 import 'package:ab3ad/screens/order/order_complete.dart';
@@ -26,5 +29,8 @@ final Map<String , WidgetBuilder> routes = {
   DeliveryScreen.routeName: (context) => const DeliveryScreen(),
   LocationScreen.routeName: (context) => const LocationScreen(),
   OrderCompleteScreen.routeName: (context) => const OrderCompleteScreen() ,
-  SettingsScreen.routeName: (context) => const SettingsScreen()
+  SettingsScreen.routeName: (context) => const SettingsScreen(),
+  TakeOrderScreen.routeName: (context) => const TakeOrderScreen(),
+  EvaluationScreen.routeName: (context) =>  const EvaluationScreen(),
+  DeliveryRequestsScreen.routeName: (context) => const DeliveryRequestsScreen() 
 };

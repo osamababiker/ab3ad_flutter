@@ -4,8 +4,9 @@ import 'package:ab3ad/screens/order/form.dart';
 import 'package:ab3ad/size_config.dart';
 import 'package:ab3ad/utils/.env.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatelessWidget { 
   const CategoryCard({
     Key? key,
     required this.category,
@@ -34,17 +35,14 @@ class CategoryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                  width: getScreenSize(context) * 12.0,
-                  height: getScreenSize(context) * 12.0,
-                  child: FadeInImage.assetNetwork(
-                    imageErrorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        "assets/images/spinner.gif",
-                      );
-                    },
-                    placeholder: "assets/images/spinner.gif", 
-                    image: "$uploadUri/categories/${category.image}"
-                  )),
+                width: getScreenSize(context) * 12.0,
+                height: getScreenSize(context) * 12.0,
+                child: CachedNetworkImage(
+                    imageUrl: "$uploadUri/categories/${category.image}",
+                    placeholder: (context, url) => Image.asset("assets/images/liquid-loader.gif"),
+                    errorWidget: (context, url, error) => Image.asset("assets/images/liquid-loader.gif"),
+                )
+              ),
               const VerticalSpacing(of: 2.0),
               Text(
                 category.name,

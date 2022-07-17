@@ -1,17 +1,17 @@
 import 'package:ab3ad/constants.dart';
 import 'package:ab3ad/controllers/authController.dart';
+import 'package:ab3ad/controllers/driversController.dart';
 import 'package:provider/provider.dart';
-import 'package:ab3ad/controllers/ordersController.dart';
-import 'package:ab3ad/enums.dart';
 import 'package:ab3ad/screens/components/coustom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 
+import '../../enums.dart';
 import 'components/body.dart';
 
-class OrdersScreen extends StatelessWidget {
-  const OrdersScreen({Key? key}) : super(key: key);
 
-  static String routeName = "/orders";
+class DeliveryRequestsScreen extends StatelessWidget {
+  const DeliveryRequestsScreen({ Key? key }) : super(key: key);
+  static String routeName = "/delivery-requests";
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +20,17 @@ class OrdersScreen extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("طلباتي  السابقة",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: kTextColor,
-                  fontWeight: FontWeight.bold)),
+          title: const Text(
+            "طلبات التوصيل",
+            style: TextStyle(color: kTextColor, fontSize: 16),
+          ),
         ),
         body: FutureBuilder(
-            future: fetchOrders(userId: authProvider.user.id),
+            future: fetchDeliveryRequests(userId: authProvider.user.id), 
             builder: (context, AsyncSnapshot snapshot) {
               if (snapshot.hasData) {
-                return Body(orders: snapshot.data);
-              } else {
+                return Body(requests: snapshot.data);
+              }else {
                 if (snapshot.hasError) {
                   return const Center(
                     child: Text(
@@ -45,9 +44,11 @@ class OrdersScreen extends StatelessWidget {
                 );
               }
             }),
-        bottomNavigationBar:
-            const CustomBottomNavBar(selectedMenu: MenuState.orders),
+          bottomNavigationBar:
+          const CustomBottomNavBar(selectedMenu: MenuState.orders),
       ),
     );
   }
 }
+
+

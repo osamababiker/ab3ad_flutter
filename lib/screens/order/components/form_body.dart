@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ab3ad/constants.dart';
 import 'package:ab3ad/models/Category.dart';
 import 'package:ab3ad/models/Item.dart';
@@ -9,6 +11,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'top_rounded_container.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as syspaths;
 
 class FormBody extends StatefulWidget {
   const FormBody({Key? key, required this.items, required this.category})
@@ -22,6 +27,9 @@ class FormBody extends StatefulWidget {
 
 class _BodyState extends State<FormBody> {
   final _formKey = GlobalKey<FormState>();
+  File? _image;
+  String? _uploadedFilePath;
+  final picker = ImagePicker();
   String? _selectedTime;
   Item? _selectedItem;
   final List<String> _timeList = [
@@ -76,7 +84,7 @@ class _BodyState extends State<FormBody> {
         key: _formKey,
         child: Column(
           children: [
-            TopRoundedContainer(
+            TopRoundedContainer( 
               color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(kDefaultPadding / 2),
@@ -294,12 +302,63 @@ class _BodyState extends State<FormBody> {
                           contentPadding: EdgeInsets.all(kDefaultPadding * 2),
                         )),
                     const VerticalSpacing(of: 2.0),
+                    const Text(
+                      "قم بارفاق صورة",
+                      style: TextStyle(fontSize: 16, color: kTextColor),
+                    ),
+                    _image != null
+                        ? Padding(
+                            padding: const EdgeInsets.all(kDefaultPadding / 4),
+                            child: Container(
+                              width: double.infinity,
+                              height: getScreenSize(context) * 15.0,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        offset: const Offset(0, -15),
+                                        blurRadius: 20,
+                                        color: const Color(0xFFDADADA)
+                                            .withOpacity(0.4))
+                                  ]),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.all(kDefaultPadding / 2),
+                                child: Image.file(_image!),
+                              ),
+                            ),
+                          )
+                        : const Text(""),
+                    const VerticalSpacing(of: 1.0),
+                    IconButton(
+                        onPressed: () async {
+                          final pickedFile =
+                              await picker.getImage(source: ImageSource.camera);
+
+                          if (pickedFile == null) return;
+                          File tmpFile = File(pickedFile.path);
+                          final appDir =
+                              await syspaths.getApplicationDocumentsDirectory();
+                          final filename = path.basename(pickedFile.path);
+                          tmpFile =
+                              await tmpFile.copy('${appDir.path}/$filename');
+
+                          setState(() {
+                            _image = File(pickedFile.path);
+                            _uploadedFilePath = "${appDir.path}/$filename";
+                          });
+                        },
+                        icon: const Icon(Icons.camera_alt)),
+                    const VerticalSpacing(of: 2.0),
                     isPressed
                         ? const CircularProgressIndicator()
                         : DefaultButton(
                             text: "أضف للسلة",
                             press: () async {
-                              if (_formKey.currentState!.validate() && _selectedItem != null && _selectedTime != null) {
+                              if (_formKey.currentState!.validate() &&
+                                  _selectedItem != null &&
+                                  _selectedTime != null) {
                                 errors.clear();
                                 setState(() {
                                   isPressed = true;
@@ -309,13 +368,14 @@ class _BodyState extends State<FormBody> {
                                 map['categoryId'] = widget.category.id;
                                 map['name'] = _selectedItem!.name;
                                 map['image'] = _selectedItem!.image;
+                                map['uploadedImage'] = _uploadedFilePath;
                                 map['price'] = _selectedItem!.price;
                                 map['deliveryTime'] = _selectedTime;
                                 map['deliveryNote'] = _notesController.text;
                                 map['quantity'] = _quantityController.text;
                                 var db = CartDatabaseHelper();
                                 await db.addToCart(cartData: map);
-                                Fluttertoast.showToast(
+                                Fluttertoast.showToast( 
                                     msg: "تم اضافة المنتج لسلة التسوق",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.BOTTOM,
@@ -326,9 +386,9 @@ class _BodyState extends State<FormBody> {
                                 setState(() {
                                   isPressed = false;
                                 });
-                              }else {
+                              } else {
                                 addError(error: "الرجاء ملئ جميع الحقول اولا");
-                                setState(() {
+                                setState(() { 
                                   isPressed = false;
                                 });
                               }

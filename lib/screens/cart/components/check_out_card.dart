@@ -1,17 +1,20 @@
 import 'package:ab3ad/screens/location/location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ab3ad/screens/components/default_button.dart';
-import 'package:geolocator/geolocator.dart';
-import '../../../constants.dart';
+import 'package:ab3ad/utils/cart_db_helper.dart';
+import 'package:provider/provider.dart';
 import '../../../size_config.dart';
 
 class CheckoutCard extends StatelessWidget {
   const CheckoutCard({
     Key? key,
   }) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
+
+    var cartProvider = context.watch<CartDatabaseHelper>();
+
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: getScreenSize(context) * 1.5,
@@ -37,38 +40,54 @@ class CheckoutCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TextField(
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  hintText: "أدخل كود التخفيض",
-                  hintStyle: TextStyle(color: kTextColor, fontSize: 14),
-                  contentPadding: EdgeInsets.all(kDefaultPadding),
-                )),
-            SizedBox(height: getScreenSize(context) * 2.0),
+            // const TextField(
+            //     keyboardType: TextInputType.text,
+            //     decoration: InputDecoration(
+            //       hintText: "أدخل كود التخفيض",
+            //       hintStyle: TextStyle(color: kTextColor, fontSize: 14),
+            //       contentPadding: EdgeInsets.all(kDefaultPadding),
+            //     )),
+            // SizedBox(height: getScreenSize(context) * 2.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text.rich(
-                  TextSpan(
-                    text: "المجموع :\n",
-                    children: [
-                      TextSpan(
-                        text: "\ جنيه 337.15",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                FutureBuilder(
+                    future: cartProvider.getCartTotal(),
+                    builder: (context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasData) {
+                        return Text.rich(
+                          TextSpan(
+                            text: "المجموع :\n",
+                            children: [
+                              TextSpan(
+                                text: "${snapshot.data}",
+                                style: const TextStyle(
+                                    fontSize: 16, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return const Text.rich(
+                          TextSpan(
+                            text: "المجموع :\n",
+                            children: [
+                              TextSpan(
+                                text: "",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    }),
                 SizedBox(
-                  width: getScreenSize(context) * 19.0,
+                  width: getScreenSize(context) * 25.0,
                   child: DefaultButton(
                     text: "اختر موقع التوصيل",
-                    press: () async {
-                      final _currentPosition =
-                          await Geolocator.getCurrentPosition(
-                              desiredAccuracy: LocationAccuracy.high);
-                      Navigator.pushNamed(context, LocationScreen.routeName,
-                          arguments: _currentPosition);
+                    press: () {
+                      Navigator.pushNamed(context, LocationScreen.routeName);
                     },
                   ),
                 ),

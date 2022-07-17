@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:ab3ad/controllers/authController.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'components/body.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,9 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
     readToken();
     requestPermission();
+    FirebaseMessaging.instance.subscribeToTopic('all');  
   }
 
   void requestPermission() async {
@@ -33,6 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
       String token = await storage.read(key: 'token') as String;
       var provider = Provider.of<Auth>(context, listen: false);
       provider.tryToken(token: token);
+      if(provider.authenticated){
+        if(provider.user.isDriver == 1){
+          FirebaseMessaging.instance.subscribeToTopic('driversTopic');
+        }
+      }
     } catch (ex) {
       print(ex);
     }

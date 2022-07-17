@@ -139,6 +139,7 @@ class _SignFormState extends State<SignForm> {
         return null;
       },
       decoration: const InputDecoration(
+  
         labelText: "كلمة المرور",
         hintText: "ادخل كلمة المرور",
         suffixIcon: CustomSuffixIcon(

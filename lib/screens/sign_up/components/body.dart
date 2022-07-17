@@ -22,12 +22,24 @@ class Body extends StatelessWidget {
                 EdgeInsets.symmetric(horizontal: getScreenSize(context) * 2.0),
             child: SingleChildScrollView(
               child: Column(
-                children: [
-                  SizedBox(height: getScreenSize(context) * 4.0), 
-                  Text("انشاء حساب", style: headingStyle),
-                  const Text(
-                    "قم بانشاء حساب لتتمتع بخدمات التطبيق",
+                children: [ 
+                  SizedBox(height: getScreenSize(context) * 2.0), 
+                  SizedBox(
+                    width: getScreenSize(context) * 10.0,
+                    height: getScreenSize(context) * 10.0,
+                    child: Image.asset(
+                      "assets/images/logo.jpg",
+                      height: getScreenSize(context) * 26.5,
+                      width: getScreenSize(context) * 23.5,
+                    ),
+                  ),
+                  Text(
+                    "انشاء حساب",
                     textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: getScreenSize(context) * 2.5,
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                   const VerticalSpacing(of: 2.0), 
                   const SignUpForm(),
@@ -37,9 +49,10 @@ class Body extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: kTextColor,
-                      fontSize: 12
+                      fontSize: 14
                     ),
                   ),
+                  SizedBox(height: getScreenSize(context) * 4.0), 
                 ],
               ),
             ),

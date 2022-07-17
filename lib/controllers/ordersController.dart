@@ -21,13 +21,29 @@ Future<List<Order>> fetchOrders({required int userId}) async {
   }
 }
 
-Future<List<Order>> fetchAllOrders() async {
+Future fetchAllOrders({required double lat, required double lng}) async {
   try {
     String token = await storage.read(key: 'token') as String;
-    Dio.Response response = await dio().get('/orders/all',
+    Dio.Response response = await dio().get('/orders/all/$lat/$lng',
         options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
     if (response.statusCode == 200) {
       return parseOrders(response.data['data']);
+    } else {
+      throw Exception('Failed to load');
+    }
+  } catch (ex) {
+    print(ex);
+    throw Exception('Failed to load');
+  }
+}
+
+Future<Order> fetchSingleOrder({required int orderId}) async {
+  try {
+    String token = await storage.read(key: 'token') as String;
+    Dio.Response response = await dio().get('/orders/single/$orderId',
+        options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
+    if (response.statusCode == 200) {
+      return Order.fromJson(response.data['data']);
     } else {
       throw Exception('Failed to load');
     }
@@ -66,17 +82,36 @@ Future fetchCoupon({required Map data}) async {
   }
 }
 
-Future<bool> checkout({required Map data}) async {
+
+Future<bool> updateOrder({required Map formData}) async {
+  try {
+    String token = await storage.read(key: 'token') as String;
+    Dio.Response response = await dio().post('/order/update',
+        data: formData,
+        options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to load');
+    }
+  } catch (ex) {
+    print(ex);
+    throw Exception(ex);
+  }
+}
+
+ 
+Future<bool> checkout({required var formData}) async {
   try {
     String token = await storage.read(key: 'token') as String;
     Dio.Response response = await dio().post('/orders/send',
-        data: data,
+        data: formData,
         options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
 
     if (response.statusCode == 201) {
       return true;
     } else {
-      print(response.data['data']);
       throw Exception('Failed to load');
     }
   } catch (ex) {

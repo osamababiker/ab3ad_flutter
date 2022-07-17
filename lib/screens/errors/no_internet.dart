@@ -16,16 +16,6 @@ class NoInternetScreen extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text(
-            " أبعاد لخدمات التوصيل",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 16
-            ),
-          ),
-        ),
         body: Center(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,

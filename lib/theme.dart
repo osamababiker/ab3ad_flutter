@@ -25,7 +25,8 @@ InputDecorationTheme inputDecorationTheme() {
       contentPadding: const EdgeInsets.symmetric(horizontal: 42),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
-            color: kTextColor.withOpacity(0.5))
+            color: kTextColor.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(kDefaultPadding * 2),
         ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(
@@ -43,7 +44,7 @@ TextTheme textTheme() {
 }
 
 AppBarTheme appBarTheme() {
-  return AppBarTheme(
+  return const AppBarTheme(
     color: Colors.white,
     elevation: 0,
     iconTheme: IconThemeData(

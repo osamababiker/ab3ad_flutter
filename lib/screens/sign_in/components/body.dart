@@ -27,12 +27,22 @@ class Body extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: getScreenSize(context) * 4.0),
+                  SizedBox(height: getScreenSize(context) * 2.0),
+                  SizedBox(
+                    width: getScreenSize(context) * 10.0,
+                    height: getScreenSize(context) * 10.0,
+                    child: Image.asset(
+                      "assets/images/logo.jpg",
+                      height: getScreenSize(context) * 26.5,
+                      width: getScreenSize(context) * 23.5,
+                    ),
+                  ),
+                  const SizedBox(height: kDefaultPadding / 4),
                   Text(
-                    "أهلا بك من جديد",
+                    "تسجيل دخول جديد",
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: getScreenSize(context) * 2.8,
+                      color: kTextColor,
+                      fontSize: getScreenSize(context) * 2.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

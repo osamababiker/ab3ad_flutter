@@ -18,7 +18,7 @@ class Body extends StatelessWidget {
       builder: (context, snapshot){
         if(snapshot.hasData){ 
           return Padding(
-            padding: const EdgeInsets.all(kDefaultPadding / 2),
+            padding: const EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
             child: Container(
               width: size.width,
               padding: const EdgeInsets.all(kDefaultPadding),
